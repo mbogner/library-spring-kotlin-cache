@@ -11,7 +11,7 @@ open class TestcontainersConfiguration {
 
     @Bean
     @ServiceConnection
-    open fun minioContainer(): RedisContainer {
+    open fun redisContainer(): RedisContainer {
         val redis = RedisContainer(DockerImageName.parse("redis:7-alpine"))
         redis.start()
         return redis
