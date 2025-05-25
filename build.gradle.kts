@@ -5,8 +5,8 @@ plugins {
     id("org.sonarqube")
     signing // required for maven central
     id("maven-publish")
-    id("io.github.gradle-nexus.publish-plugin")
     id("net.researchgate.release")
+    id("org.jreleaser")
 }
 
 val javaVersion: String by System.getProperties()
@@ -85,8 +85,7 @@ tasks {
         dependsOn(
             "signMavenPublication",
             "publishToMavenLocal",
-            "publishToSonatype",
-            "closeAndReleaseSonatypeStagingRepository"
+            "jreleaserFullRelease"
         )
     }
 }
@@ -106,14 +105,16 @@ jacoco {
     toolVersion = jacocoToolVersion
 }
 
-nexusPublishing {
-    repositories {
-        sonatype {
-            // needed because default was updated to another server that this project can't use atm
-            nexusUrl.set(uri("https://s01.oss.sonatype.org/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://s01.oss.sonatype.org/content/repositories/snapshots/"))
-            username.set(project.findProperty("ossrhUsername") as String?)
-            password.set(project.findProperty("ossrhPassword") as String?)
+jreleaser {
+    signing {
+        active.set(org.jreleaser.model.Active.ALWAYS)
+        armored.set(true)
+    }
+    deploy {
+        maven {
+            mavenCentral {
+                active.set(org.jreleaser.model.Active.ALWAYS)
+            }
         }
     }
 }
